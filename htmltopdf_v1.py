@@ -1,13 +1,12 @@
 from pickle import NONE
 from fpdf import FPDF
 import os
-import xlrd
-from PIL import Image
-import requests
-from io import BytesIO
 import numpy 
 from alive_progress import alive_bar
-from listex import list_output
+from image import *
+from image_read import *
+from list_export import list_output
+
 rows = []
 
 def save_loc(pdf):
@@ -18,33 +17,6 @@ def save_loc(pdf):
 def set_loc(pdf):
     pdf.set_x(x_var)
     pdf.set_y(y_var)
-
-def imgdimension(imglink):
-    try:
-        if(str(imglink[:4:1])=="http"):
-            response = requests.get(imglink)
-            img = Image.open(BytesIO(response.content))
-        else:
-            img = Image.open(imglink)
-    except:
-        img=Image.open(imglink[:imglink.rfind("."):1]+'.png')
-    #rgb_im = img.convert('RGBA')
-    #rgb_im.mode='RGBA'
-    #print(imglink[:imglink.rfind("."):1]+'.jpg')
-    if(str(imglink[-3::1])=="png"):
-        #print(imglink)
-        png = img.convert('RGBA')
-        background = Image.new('RGBA', png.size, (255,255,255))
-        alpha_composite = Image.alpha_composite(background, png)
-        alpha_composite= alpha_composite.convert("RGB")
-        alpha_composite.save(imglink[:imglink.rfind("."):1]+'.jpg', 'JPEG', quality=90)
-    #img.convert('RGB').save(imglink[:imglink.rfind("."):1]+'.jpg', 'JPEG')
-    #rgb_im.save(imglink[:imglink.rfind("."):1]+'.jpg')
-    widthpx, heightpx = img.size
-    widthmm=185
-    heightmm= heightpx*(widthmm/widthpx)
-    #print(widthpx,heightpx)
-    return widthmm,heightmm,heightpx,widthpx
 
 def count_added(l):
     sumv=0
@@ -57,6 +29,7 @@ def mainc(pdf):
     global q_num,added_list
     for question in remaining_rows:
         if(question[3]!="*" and q_num<=100 and question[5]!=0):
+            
             imglink=question[2]
             img_local_link=basepath+"/imgs/"+question[4]
             imglink=img_local_link
@@ -64,13 +37,15 @@ def mainc(pdf):
             img_local_link = img_local_link[:img_local_link.rfind("."):1]+'.jpg'
             imglink=img_local_link
 
-            box_height=imgdimension(imglink)[1]
-            box_width=imgdimension(imglink)[0]
-            box_widthpx=imgdimension(imglink)[3]
+            box=imgdimension(imglink)
+            box_height=box[1]
+            box_width=box[0]
+            box_widthpx=box[3]
             
             #edit this if you want:
             global y_var
             save_loc(pdf)
+
 
             hh=int(box_height)
             if(hh>260):
@@ -78,41 +53,26 @@ def mainc(pdf):
                 ww=(250/hh)*box_width
                 hh=250
                 box_widthpx=ww
-            
-            if(int(box_widthpx)>1000):
-                ww=185
-                hh=(ww/185)*box_height
-                xx=0
-            elif(int(box_widthpx)>900):
+                xx=185-ww
+            elif(int(box_widthpx)>500):
                 ww=180
                 hh=(ww/185)*box_height
                 xx=5
-            elif(int(box_widthpx)>700):
-                ww=170
-                hh=(ww/185)*box_height
-                xx=15
-            elif(int(box_widthpx)>600):
+            else:
                 ww=160
                 hh=(ww/185)*box_height
                 xx=25
-            elif(int(box_widthpx)>500):
-                ww=150
-                hh=(ww/185)*box_height
-                xx=35
-            else:
-                ww=140
-                hh=(ww/185)*box_height
-                xx=45
 
-            # print("\n")
-            # print(question)
-            # print("y_var: ",y_var)
-            # print("height: ",hh)
-            # print("xx: ",xx)
-            # print("\n")
+
+            print("\n")
+            print(question)
+            print("y_var: ",y_var)
+            print("height: ",hh)
+            print("xx: ",xx)
+            print("\n")
             l=numpy.array(remaining_rows)
-            if(int(hh)+int(y_var) >260):
-                if(int(y_var)>260):
+            if(int(hh)+int(y_var) >270):
+                if(int(y_var)>270):
                     pdf.add_page()
                 else:
                     temp=count_added(l)
@@ -162,26 +122,18 @@ def mainc(pdf):
     return 
 
 
+
+#Defining the basepath
 basepath=os.path.dirname(__file__)
-loc = (basepath+"/input_file.xls")
- 
-wb = xlrd.open_workbook(loc)
-sheet = wb.sheet_by_index(0)
- 
-# Extracting number of rows
-#print(sheet.nrows)
-for row in range(sheet.nrows)[::-1]:
-#for row in range(10):
-    number=int(row+1)
-    name=sheet.cell_value(row, 0)
-    link=sheet.cell_value(row, 1)
-    link_name=link[link.rfind("/")+1::1]
-    #print(link_name)
-    answer=sheet.cell_value(row, 2)
-    if(answer!="*"):
-        rows.append([number,name,link,answer,link_name,1])
-    #print([number,name,link,answer,link_name])
-remaining_rows=rows
+
+# ~1 Opening XLS file
+#remaining_rows= read_excel(basepath+"/input_file")
+
+# ~2 Or directly we open images from 'basepath/imgs/...'
+remaining_rows=read_dir(basepath+"/imgs")
+
+print(remaining_rows)
+
 numpy.random.shuffle(remaining_rows)
 #print(remaining_rows)
 
