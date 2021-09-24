@@ -27,7 +27,7 @@ def read_dir(addr):
     rows=[]
     filenames = list(next(walk(addr), (None, None, []))[2]) # [] if no file
     filenames.sort()
-    
+
     for row in filenames:
         number=int(filenames.index(row)+1)
         #name=sheet.cell_value(row, 0)
@@ -36,9 +36,7 @@ def read_dir(addr):
         if(file_extension=="png" or file_extension=="jpg"):
             link_name=row
             rows.append([number,"name","link","answer",link_name,1])
-        #answer=sheet.cell_value(row, 2)
-        # if(answer!="*"):
-        #     rows.append([number,name,link,answer,link_name,1])
+
     return rows
 
 

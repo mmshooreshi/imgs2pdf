@@ -27,5 +27,5 @@ def imgdimension(imglink):
     widthpx, heightpx = img.size
     widthmm=185
     heightmm= heightpx*(widthmm/widthpx)
-    #print(widthpx,heightpx)
+
     return widthmm,heightmm,heightpx,widthpx
