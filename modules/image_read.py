@@ -23,8 +23,11 @@ def read_excel(addr):
 
 
 def read_dir(addr):
+    
     rows=[]
-    filenames = list(next(walk(addr), (None, None, []))[2])  # [] if no file
+    filenames = list(next(walk(addr), (None, None, []))[2]) # [] if no file
+    filenames.sort()
+    
     for row in filenames:
         number=int(filenames.index(row)+1)
         #name=sheet.cell_value(row, 0)
@@ -37,3 +40,5 @@ def read_dir(addr):
         # if(answer!="*"):
         #     rows.append([number,name,link,answer,link_name,1])
     return rows
+
+
