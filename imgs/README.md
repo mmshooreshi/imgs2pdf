@@ -1,4 +1,4 @@
 ---
 ### place your image files here.
-### ".png" images would be converted to ".jpg".
+### ".png" images will be converted to ".jpg" an get replaced.
 ---
