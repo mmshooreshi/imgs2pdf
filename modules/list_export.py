@@ -1,4 +1,3 @@
-
 def list_output(a): 
     print("Answers:\n")
     for b in a:

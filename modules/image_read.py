@@ -1,4 +1,4 @@
-import os, xlrd
+import xlrd
 from os import walk
 
 def read_excel(addr):
